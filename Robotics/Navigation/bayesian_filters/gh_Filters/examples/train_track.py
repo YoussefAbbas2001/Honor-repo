@@ -1,9 +1,20 @@
-import matplotlib.pyplot as plt
 import numpy as np
-plt.style.use("fivethirtyeight")
+import matplotlib.pyplot as plt
 
-weights = [158.0, 164.2, 160.3, 159.9, 162.1, 164.6, 
-           169.6, 167.4, 166.4, 171.0, 171.2, 172.6]
+def compute_new_position(pos, vel, dt=1.):
+    """ dt is the time delta in seconds."""
+    return pos + (vel * dt)
+
+def measure_position(pos):
+    return pos + np.random.randn()*500
+
+def gen_train_data(pos, vel, count, acc=2):
+    zs = []
+    for t in range(count):
+        pos = compute_new_position(pos, vel)
+        vel += 2
+        zs.append(measure_position(pos))
+    return np.asarray(zs)
 
 def g_h_filter(data, x0, dx, g, h, dt=1.):
     x_est       = x0
@@ -22,6 +33,7 @@ def g_h_filter(data, x0, dx, g, h, dt=1.):
 
         results.append(x_est)
         predictions.append(x_pred)
+
     return results, predictions
 
 def filter_plotting(estimates, predictions, weights, title, xlabel, ylabel):
@@ -36,7 +48,7 @@ def filter_plotting(estimates, predictions, weights, title, xlabel, ylabel):
     plt.ylabel(ylabel)
     plt.show()
 
-
-estimated, predicted = g_h_filter(data=weights, x0=160., dx=0.2, g=6./10, h=0.2, dt=1.)
-
-filter_plotting( estimated, predicted, weights, 'gh Filter', 'Time (day)', 'weights (lb)')
+pos, vel = 23.*1000, 15.
+zs = gen_train_data(pos, vel, 100, 10)
+estimated, predicted = g_h_filter(zs, pos, vel, g=0.01, h=0.001, dt=1)
+filter_plotting( estimated, predicted, zs, 'gh Filter', 'Time (day)', 'Position (lb)')
