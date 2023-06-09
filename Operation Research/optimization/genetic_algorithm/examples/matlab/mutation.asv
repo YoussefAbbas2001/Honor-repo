@@ -1,0 +1,10 @@
+function mutated = mutation(population, p_mutation)
+    for i=1:length(population)
+        if rand() > p_mutation
+            % mutation p_mutation % of the population chromosomes
+            val = randi([0 30]);
+            pos = randi([1 length(length(population(i)))]);
+            population(i, pos) = val;
+        end
+    end
+end
